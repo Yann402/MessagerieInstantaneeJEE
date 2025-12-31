@@ -1,0 +1,79 @@
+-- Supprimer la base si elle existe
+DROP DATABASE IF EXISTS db_messagerie_instantanee;
+
+-- Créer la base de données
+CREATE DATABASE db_messagerie_instantanee 
+CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
+
+USE db_messagerie_instantanee;
+
+-- Table utilisateur
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    password VARCHAR(255) NOT NULL,
+    permission INT NOT NULL DEFAULT 3,
+    last_connection_time TIMESTAMP NULL DEFAULT NULL,
+    status VARCHAR(20) DEFAULT 'offline',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table message
+CREATE TABLE message (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    content TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- Table log
+CREATE TABLE log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    type VARCHAR(50) NOT NULL,
+    description VARCHAR(255),  -- Colonne description ajoutée
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL
+);
+
+-- Insertion des utilisateurs de test
+-- Les mots de passe sont hachés avec BCrypt (admin123, modo123, user123)
+INSERT INTO user (username, first_name, last_name, email, password, permission) VALUES
+('admin', 'Admin', 'System', 'admin@messagerie.com', 
+ '$2a$10$NkX3.4gH7C9V5o6p8q2R0uY6xYzA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q', 1),
+('moderateur', 'Modo', 'Test', 'modo@messagerie.com', 
+ '$2a$10$NkX3.4gH7C9V5o6p8q2R0uY6xYzA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q', 2),
+('utilisateur1', 'Jean', 'Dupont', 'jean@mail.com', 
+ '$2a$10$NkX3.4gH7C9V5o6p8q2R0uY6xYzA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q', 3),
+('utilisateur2', 'Marie', 'Martin', 'marie@mail.com', 
+ '$2a$10$NkX3.4gH7C9V5o6p8q2R0uY6xYzA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q', 3);
+
+-- Insertion de logs de test
+INSERT INTO log (user_id, type, description) VALUES
+(1, 'CONNEXION', 'Admin connecté'),
+(2, 'CONNEXION', 'Modérateur connecté'),
+(3, 'INSCRIPTION', 'Nouvel utilisateur'),
+(4, 'INSCRIPTION', 'Nouvel utilisateur');
+
+-- Insertion de messages de test
+INSERT INTO message (user_id, content) VALUES
+(1, 'Bienvenue sur la messagerie instantanée !'),
+(2, 'Bonjour à tous !'),
+(3, 'Salut !'),
+(4, 'Comment ça va ?');
+
+USE db_messagerie_instantanee;
+
+-- Supprimer les anciens hashs invalides et mettre les vrais hashs BCrypt pour "admin123"
+UPDATE user SET password = '$2a$10$ZkJFefiV.B4/9cKteXyi2e0W2V7Cl0iamcRkl15eaUsz011tagNNq' WHERE username = 'admin';
+UPDATE user SET password = '$2a$10$GOfKe3vYU1U35pMoIXe1Tu/zPOtXLQ3DfXS0s.iqbeni9QlfS6ouS' WHERE username = 'moderateur';
+UPDATE user SET password = '$2a$10$Inic9vNl5UTbeiKl7cDj..9M8sx7rHad3InRHkgNAse62XC.on.hW' WHERE username = 'utilisateur1';
+UPDATE user SET password = '$2a$10$.rB8Wu40Zwuvsk3TXVFnOeV3ajY.A/FiQ/WVx939MHFJxsKqs.5NC' WHERE username = 'utilisateur2';
+
+-- Ajout du motif de refus :
+ALTER TABLE user ADD COLUMN ban_reason VARCHAR(255) DEFAULT NULL;
