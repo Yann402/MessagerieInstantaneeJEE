@@ -196,5 +196,8 @@ Ce projet est un projet académique développé dans le cadre du cours JEE.
 
 Pour toute question : yannpatrit@gmail.com
 
+Notes Importantes :
 
-N.B : Le dossier target/ est généré par Maven donc négligez celui que j'ai fournis.
+N.B 1 : Le dossier target/ est généré par Maven donc négligez celui que j'ai fournis.
+N.B 2 : Pour l'exécution vous aurez différents problèmes, pensez à : changer la 'root' de votre fichier dans les propriétés de votre projet (clic droit + properties) dans 'Web Project Setting' par le nom de votre projet créé (1); toujours dans les propriétés dans 'target runtimes', cochez votre tomcat 10.+ ; ajouter votre projet à votre serveur.
+N.B 3 : Ce projet ne marche qu'avec les serveurs tomcat 10.+, les versions 9 et autres en dessous ne marcheront pas.
